@@ -4,7 +4,7 @@
 #include "Ship.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "SkeletalMeshAttributes.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AShip::AShip()
@@ -37,16 +37,25 @@ void AShip::BeginPlay()
 		{
 			Subsystem->AddMappingContext(ShipMappingContext, 0);
 		}
-			
 	}
-	
 }
+
 
 // Called every frame
 void AShip::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	if(GEngine)
+	{
+	    CurrentVelocity = GetVelocity().Length();
+		
+		GEngine->AddOnScreenDebugMessage(1,
+		INDEFINITELY_LOOPING_DURATION, 
+		FColor::Green,
+		FString::Printf(TEXT("Current Velocity: %f"), CurrentVelocity));
+	}
 }
 
 // Called to bind functionality to input
@@ -79,8 +88,49 @@ void AShip::Rotate(const FInputActionValue& Value)
 {
 	if (float CurrentValue = Value.Get<float>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("IA_Rotate triggered! %f"), CurrentValue);
 		const FVector Torque = FVector(1.f, 0.f, 0.f) * TorqueStrength * CurrentValue;
 		ShipMesh->AddTorqueInRadians(Torque, NAME_None, true);
+	}
+}
+
+void AShip::NotifyHit(UPrimitiveComponent* MyComp,
+	AActor* Other,
+	UPrimitiveComponent* OtherComp,
+	bool bSelfMoved,
+	FVector HitLocation,
+	FVector HitNormal,
+	FVector HitImpulse,
+	const FHitResult& Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, HitImpulse, Hit);
+
+    HandleShipLanding();
+	
+}
+
+// Function to test if Actor (Ship) has landed safely
+bool AShip::IsLandedSafely()
+{
+	FRotator CurrentRotation = GetActorRotation();
+
+	float AcceptableRollRange = 80.f;
+
+	return FMath::Abs(CurrentRotation.Roll) <= AcceptableRollRange;
+}
+
+void AShip::HandleShipLanding()
+{
+	if(!IsLandedSafely() || CurrentVelocity > MaxLandingVelocity)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ship has crashed!"));
+		
+		// Reload current level if ship crashes
+		FName CurrentLevelName = *UGameplayStatics::GetCurrentLevelName(this, true);
+		   // or FName(*GetWorld()->GetName())
+		UGameplayStatics::OpenLevel(this, CurrentLevelName, true);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning , TEXT("Ship has landed safely!"));
 	}
 }

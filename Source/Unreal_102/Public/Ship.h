@@ -27,6 +27,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void NotifyHit(UPrimitiveComponent* MyComp,
+	AActor* Other,
+	UPrimitiveComponent* OtherComp,
+	bool bSelfMoved,
+	FVector HitLocation,
+	FVector HitNormal,
+	FVector HitImpulse,
+	const FHitResult& Hit) override;
+
+	// Safe Landing Function
+	bool IsLandedSafely();
+
+	void HandleShipLanding();
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,6 +50,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Ship | Movement")
 	float TorqueStrength = 1.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Ship | Movement")
+	float MaxLandingVelocity = 1000.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Ship | Graphics")
 	UStaticMeshComponent* ShipMesh;
@@ -62,4 +78,6 @@ private:
 	UPROPERTY(VisibleAnywhere);
 	UCameraComponent* ViewCamera;
 	
+	UPROPERTY(VisibleAnywhere)
+	float CurrentVelocity;
 };
