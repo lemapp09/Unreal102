@@ -2,6 +2,8 @@
 
 
 #include "Goal.h"
+#include "LanderGameMode.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Ship.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -25,6 +27,19 @@ void AGoal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(bIsWaitingForParticleFX)
+	{
+		if(CelebrationEffectComponent && !CelebrationEffectComponent->IsActive())
+		{
+	        ALanderGameMode* LanderGameMode =
+				Cast<ALanderGameMode>(UGameplayStatics::GetGameMode(this));
+
+			if(LanderGameMode)
+			{
+				LanderGameMode->LoadNextLevel();
+			}
+		}
+	}
 }
 
 void AGoal::NotifyHit(UPrimitiveComponent* MyComp,
@@ -44,13 +59,40 @@ void AGoal::NotifyHit(UPrimitiveComponent* MyComp,
 		if(Other && Other != this && Other->IsA(AShip::StaticClass()))
 		{
 			HandleGoalReached();
+
+			AShip* ShipActor = Cast<AShip>(Other);
+			if (ShipActor)
+			{
+				ShipActor->IsGoalReached();
+			}
 		}
 	}
 }
 void AGoal::HandleGoalReached() 
 {
-	UE_LOG(LogTemp, Warning , TEXT("A ship has Hit the Goal!"));
-	FName CurrentLevelName = *UGameplayStatics::GetCurrentLevelName(this, true);
-	UGameplayStatics::OpenLevel(this, CurrentLevelName, false);
+	bIsGoalReached = true;
+
+	if(CelebrationEffect)
+	{
+		FVector EffectLocation = GetActorLocation();
+		CelebrationEffectComponent =
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),
+			CelebrationEffect, EffectLocation, GetActorRotation());
+		
+		if(CelebrationEffectComponent)
+			{
+			bIsWaitingForParticleFX = true;
 	
+			ALanderGameMode* LanderGameMode =
+				Cast<ALanderGameMode>(UGameplayStatics::GetGameMode(this));
+
+			if(LanderGameMode)
+				{
+					LanderGameMode->StopTimer();
+
+					// Need to wait for Effect to finish before loading next level
+					//LanderGameMode->LoadNextLevel();
+				}
+			}
+	}
 }

@@ -41,6 +41,8 @@ public:
 
 	void HandleShipLanding();
 
+	void IsGoalReached();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -49,7 +51,7 @@ protected:
 	float ImpulseStrength = 30.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Ship | Movement")
-	float TorqueStrength = 1.f;
+	float TorqueStrength = 5.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Ship | Movement")
 	float MaxLandingVelocity = 1000.f;
@@ -80,4 +82,7 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	float CurrentVelocity;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bIsInputEnabled = true;
 };

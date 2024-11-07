@@ -38,6 +38,8 @@ void AShip::BeginPlay()
 			Subsystem->AddMappingContext(ShipMappingContext, 0);
 		}
 	}
+
+	bIsInputEnabled = true;
 }
 
 
@@ -73,23 +75,28 @@ void AShip::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 // PropelUp  FUNCTION()
 void AShip::PropelUp(const FInputActionValue& Value)
-{ 
-	if (bool CurrentValue = Value.Get<bool>())
+{
+	if (bIsInputEnabled)
 	{
-		const FVector WorldImpulseVector = FVector(0.f, 0.f, 1.f) * ImpulseStrength;
-		const FVector LocalImpulse = GetActorRotation().RotateVector(WorldImpulseVector);
-		ShipMesh->AddImpulse(LocalImpulse, NAME_None, true);
-		// ShipMesh->AddForceAtLocationLocal(WorldImpulseVector, LocalImpulse, NAME_None);
+		if (bool CurrentValue = Value.Get<bool>())
+		{
+			const FVector WorldImpulseVector = FVector(0.f, 0.f, 1.f) * ImpulseStrength;
+			const FVector LocalImpulse = GetActorRotation().RotateVector(WorldImpulseVector);
+			ShipMesh->AddImpulse(LocalImpulse, NAME_None, true);
+		}
 	}
 }
 
 // Rotate  FUNCTION()
 void AShip::Rotate(const FInputActionValue& Value)
 {
-	if (float CurrentValue = Value.Get<float>())
+	if (bIsInputEnabled)
 	{
-		const FVector Torque = FVector(1.f, 0.f, 0.f) * TorqueStrength * CurrentValue;
-		ShipMesh->AddTorqueInRadians(Torque, NAME_None, true);
+		if (float CurrentValue = Value.Get<float>())
+		{
+			const FVector Torque = FVector(1.f, 0.f, 0.f) * TorqueStrength * CurrentValue;
+			ShipMesh->AddTorqueInRadians(Torque, NAME_None, true);
+		}
 	}
 }
 
@@ -131,6 +138,11 @@ void AShip::HandleShipLanding()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning , TEXT("Ship has landed safely!"));
+		// UE_LOG(LogTemp, Warning , TEXT("Ship has landed safely!"));
 	}
+}
+
+void AShip::IsGoalReached()
+{
+	bIsInputEnabled = false;
 }
