@@ -78,23 +78,21 @@ void ALanderGameMode::BeginPlay()
 void ALanderGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
+	
 	if(bIsTimeRunning)
 	{
 		if(Timer > 0)
-	    {
-		  Timer -= DeltaTime;
+		{
+			Timer -= DeltaTime;
 		
-		  if(Timer <= 0)
-		    {
-			  // Restart the level
-			  FName CurrentLevelName = *UGameplayStatics::GetCurrentLevelName(this, true);
-			  UGameplayStatics::OpenLevel(this, CurrentLevelName);
-		    }
-	    }
+			if(Timer <= 0)
+			{
+				// Restart the level
+				FName CurrentLevelName = *UGameplayStatics::GetCurrentLevelName(this, true);
+				UGameplayStatics::OpenLevel(this, CurrentLevelName);
+			}
+		}
 	}
-	
 }
 
 void ALanderGameMode::StopTimer()
