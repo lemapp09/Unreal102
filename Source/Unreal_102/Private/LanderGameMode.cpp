@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LanderGameMode.h"
+#include "GameFramework/GameUserSettings.h"
 #include "Ship.h"
 #include "Data/LevelTimerData.h"
 #include "Kismet/GameplayStatics.h"
@@ -29,6 +30,16 @@ ALanderGameMode::ALanderGameMode()
 void ALanderGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	// Get Game User Settings
+	UGameUserSettings* GameUserSettings = Cast<UGameUserSettings>(UGameUserSettings::GetGameUserSettings());
+
+	if (GameUserSettings)
+	{
+		// Load Settings
+		GameUserSettings->LoadSettings(false);
+	}
+
 	
 	if(LevelTimerDataTable != nullptr)
 	{
@@ -84,11 +95,6 @@ void ALanderGameMode::Tick(float DeltaTime)
 	    }
 	}
 	
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(2, INDEFINITELY_LOOPING_DURATION,
-			FColor::Red, FString::Printf(TEXT("Time: %f"), Timer));
-	}
 }
 
 void ALanderGameMode::StopTimer()

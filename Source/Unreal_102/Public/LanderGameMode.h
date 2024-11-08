@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Gameplay")
 	float CountdownTimer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Timer;
+
 	void StopTimer();
 
 	void IncreaseTimer(float AdditionalTime);
@@ -37,7 +40,9 @@ protected:
 	UDataTable* LevelTimerDataTable;
 
 private:
-	float Timer;
 	bool bIsTimeRunning = true;
 	int32 GetCurrentLevelID() const;
+
+	UPROPERTY(VisibleAnywhere)
+	UGameUserSettings* GameUserSettings;
 };

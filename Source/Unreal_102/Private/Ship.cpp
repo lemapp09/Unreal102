@@ -53,10 +53,6 @@ void AShip::Tick(float DeltaTime)
 	{
 	    CurrentVelocity = GetVelocity().Length();
 		
-		GEngine->AddOnScreenDebugMessage(1,
-		INDEFINITELY_LOOPING_DURATION, 
-		FColor::Green,
-		FString::Printf(TEXT("Current Velocity: %f"), CurrentVelocity));
 	}
 }
 
